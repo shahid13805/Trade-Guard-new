@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trade Guard | Trading Risk Management</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- TOP NAVIGATION & GLOBAL PLANNING MODE HEADER -->
+  <header class="app-header">
+    <!-- Inside your existing <header> tag -->
+<div class="equity-container">
+  <span class="equity-label">Equity:</span>
+
+  <!-- Display Mode -->
+  <div id="equity-display" class="equity-display">
+    <span id="equity-amount" class="equity-value">$10,000.00</span>
+    <button id="edit-equity-btn" class="btn-edit" type="button">Edit</button>
+  </div>
+
+  <!-- Inline Edit Form (Hidden by default) -->
+  <div id="equity-edit" class="equity-edit hidden">
+    <span class="currency-symbol">$</span>
+    <input 
+      type="number" 
+      id="equity-input" 
+      step="any" 
+      min="0" 
+      placeholder="0.00" 
+    />
+    <button id="save-equity-btn" class="btn-save" type="button">Save</button>
+    <button id="cancel-equity-btn" class="btn-cancel" type="button">✕</button>
+  </div>
+</div>
+    <div class="brand-group">
+      <div class="brand-logo" aria-label="Trade Guard">TG</div>
+      <div>
+        <h1 class="brand-title">Trade Guard </h1>
+        <span class="brand-subtitle">Trading risk &amp; scenario planning</span>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <button type="button" class="nav-tab-btn active" data-target="planning-workspace">
+        Planning Workspace
+      </button>
+      <button type="button" class="nav-tab-btn" data-target="calculators-workspace">
+        Risk Calculators
+      </button>
+      <button type="button" class="nav-tab-btn" data-target="risk-rules-workspace">
+        Risk Rules
+      </button>
+      <button type="button" class="nav-tab-btn" data-target="journal-workspace">
+        Trade Journal
+      </button>
+    </nav>
+
+    <div class="planning-mode-controls">
+      <div class="header-equity-pill">
+        <small>Equity</small>
+        <strong id="header-account-equity">$10,000.00</strong>
+      </div>
+
+      <label class="planning-mode-switch" title="Enforce strict risk rules &amp; pre-trade sandbox simulation">
+        <input type="checkbox" id="planning-mode-toggle" />
+        <span class="switch-slider"></span>
+        <span class="switch-label">Planning Mode</span>
+        <span id="planning-mode-badge" class="mode-badge mode-off">OFF</span>
+      </label>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- PLANNING MODE SANDBOX BANNER -->
+    <div id="planning-mode-banner" class="planning-banner hidden">
+      <div class="banner-left">
+        <span class="pulse-dot"></span>
+        <strong>PLANNING MODE ACTIVE:</strong> Pre-trade simulation &amp; strict Risk Gatekeeper lockouts are enforced.
+      </div>
+      <div class="banner-metrics">
+        <span>Account Equity: <strong id="pm-banner-equity">$10,000.00</strong></span>
+        <span>Remaining Daily Risk: <strong id="pm-banner-daily-left">$300.00 (3.0%)</strong></span>
+        <span>Simulated Post-Loss Equity: <strong id="pm-banner-sim-equity">$9,900.00</strong></span>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         TAB 1: PLANNING WORKSPACE (SPACIOUS SUB-PAGE ARCHITECTURE)
+         =================================================================== -->
+    <section id="planning-workspace" class="workspace-section">
+      <!-- Live Market Ticker Strip -->
+      <div class="live-ticker-strip">
+        <div class="ticker-status">
+          <span id="feed-status-dot" class="status-dot"></span>
+          <span id="feed-status-text">CONNECTING...</span>
+        </div>
+        <div class="ticker-items" id="ticker-items-container"></div>
+      </div>
+
+      <!-- Planning Sub-Navigation (Pages) -->
+      <div class="plan-subnav">
+        <button type="button" class="plan-sub-btn active" data-subtab="sub-terminal">
+          📈 Live Chart &amp; Telemetry
+        </button>
+        <button type="button" class="plan-sub-btn" data-subtab="sub-architect">
+          📐 Trade Architect &amp; Sizing
+        </button>
+        <button type="button" class="plan-sub-btn" data-subtab="sub-gatekeeper">
+          🛡️ Risk Gatekeeper &amp; Watchlist
+        </button>
+      </div>
+
+      <!-- SUB-PAGE 1: LIVE CHART & TELEMETRY -->
+      <div id="sub-terminal" class="plan-subview">
+        <div class="planning-card spacious-card">
+          <div class="card-header">
+            <div>
+              <h3>Live Market &amp; Technical Analysis</h3>
+              <p class="card-subtitle">Real-time WebSocket feed, structure &amp; ATR volatility</p>
+            </div>
+            <div class="symbol-selector-group">
+              <select id="plan-symbol-select" class="plan-input">
+                <option value="BTCUSDT">BTC/USDT (Live WS)</option>
+                <option value="ETHUSDT">ETH/USDT (Live WS)</option>
+                <option value="SOLUSDT">SOL/USDT (Live WS)</option>
+                <option value="BNBUSDT">BNB/USDT (Live WS)</option>
+                <option value="XAUUSD">XAU/USD (Gold Sim)</option>
+                <option value="EURUSD">EUR/USD (FX Sim)</option>
+                <option value="NAS100">NAS100 (Index Sim)</option>
+              </select>
+              <select id="plan-timeframe-select" class="plan-input">
+                <option value="1m">1m</option>
+                <option value="5m">5m</option>
+                <option value="15m" selected>15m</option>
+                <option value="1h">1H</option>
+                <option value="4h">4H</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="live-price-hero">
+            <div class="price-main">
+              <span class="symbol-tag" id="live-symbol-title">BTCUSDT (15m)</span>
+              <span class="big-price" id="live-current-price">--</span>
+              <span class="price-change-pill pill-up" id="live-price-change">0.00%</span>
+            </div>
+            <div class="price-range-stats">
+              <div><small>24h High</small><strong id="live-high-24h">--</strong></div>
+              <div><small>24h Low</small><strong id="live-low-24h">--</strong></div>
+              <div><small>ATR (14)</small><strong id="live-atr-value">--</strong></div>
+            </div>
+          </div>
+
+          <!-- High-Resolution Chart Canvas -->
+          <div class="chart-canvas-wrapper spacious-canvas-box">
+            <canvas id="live-mini-chart" width="1100" height="360"></canvas>
+          </div>
+
+          <div class="indicator-grid">
+            <div class="indicator-box">
+              <span class="ind-label">Trend Bias (EMA 20/50)</span>
+              <strong class="ind-value" id="ind-trend-bias">Analyzing...</strong>
+              <small class="ind-sub" id="ind-ema-spread">Spread: --</small>
+            </div>
+            <div class="indicator-box">
+              <span class="ind-label">RSI (14) Momentum</span>
+              <strong class="ind-value" id="ind-rsi-val">--</strong>
+              <small class="ind-sub" id="ind-rsi-state">Neutral</small>
+            </div>
+            <div class="indicator-box">
+              <span class="ind-label">Volatility Regime</span>
+              <strong class="ind-value" id="ind-vol-regime">--</strong>
+              <small class="ind-sub" id="ind-atr-stop-hint">1.5x ATR Stop: --</small>
+            </div>
+          </div>
+
+          <div class="quick-sync-bar" style="margin-top: 14px;">
+            <button type="button" id="btn-sync-live-entry" class="btn-secondary">
+              ⚡ Use Live Price as Entry
+            </button>
+            <button type="button" id="btn-apply-atr-sl" class="btn-secondary">
+              🛡️ Auto-Set 1.5x ATR Stop Loss
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-PAGE 2: SCENARIO ARCHITECT -->
+      <div id="sub-architect" class="plan-subview hidden">
+        <div class="planning-card spacious-card">
+          <div class="card-header">
+            <div>
+              <h3>Trade Scenario Architect</h3>
+              <p class="card-subtitle">Position sizing, multi-TP scaling &amp; expectancy</p>
+            </div>
+            <div class="direction-toggle">
+              <button type="button" id="dir-long-btn" class="dir-btn active-long" data-dir="LONG">LONG ▲</button>
+              <button type="button" id="dir-short-btn" class="dir-btn" data-dir="SHORT">SHORT ▼</button>
+            </div>
+          </div>
+
+          <form id="trade-plan-form" class="plan-form">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="plan-account-balance">Account Balance ($)</label>
+                <input type="number" id="plan-account-balance" class="plan-input" value="10000" step="100" required />
+              </div>
+              <div class="form-group">
+                <label for="plan-risk-pct">Risk Per Trade (%)</label>
+                <input type="number" id="plan-risk-pct" class="plan-input" value="1.0" step="0.1" min="0.1" max="20" required />
+              </div>
+            </div>
+
+            <div class="form-row-3">
+              <div class="form-group">
+                <label for="plan-entry-price">Entry Price</label>
+                <input type="number" id="plan-entry-price" class="plan-input" step="any" required />
+              </div>
+              <div class="form-group">
+                <label for="plan-stop-loss">Stop Loss (Invalidation)</label>
+                <input type="number" id="plan-stop-loss" class="plan-input" step="any" required />
+              </div>
+              <div class="form-group">
+                <label for="plan-win-rate">Est. Strategy Win Rate (%)</label>
+                <input type="number" id="plan-win-rate" class="plan-input" value="50" step="1" min="5" max="95" />
+              </div>
+            </div>
+
+            <div class="tp-matrix" style="padding: 16px; margin: 16px 0;">
+              <div class="tp-header" style="margin-bottom: 12px;">
+                <span style="font-size: 0.9rem; font-weight: 700;">Take Profit Scaling Targets</span>
+                <button type="button" id="btn-auto-rr-targets" class="btn-link">Auto-Fill 1.5R / 2.5R / 4R</button>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group">
+                  <label for="plan-tp1">TP 1 (50% Pos)</label>
+                  <input type="number" id="plan-tp1" class="plan-input" step="any" required />
+                </div>
+                <div class="form-group">
+                  <label for="plan-tp2">TP 2 (30% Pos)</label>
+                  <input type="number" id="plan-tp2" class="plan-input" step="any" />
+                </div>
+                <div class="form-group">
+                  <label for="plan-tp3">TP 3 (20% Pos)</label>
+                  <input type="number" id="plan-tp3" class="plan-input" step="any" />
+                </div>
+              </div>
+            </div>
+
+            <div class="rr-visualizer" style="margin: 20px 0;">
+              <div class="rr-bar-labels" style="font-size: 0.85rem; margin-bottom: 6px;">
+                <span id="rr-label-risk">Risk: 1.0R</span>
+                <span id="rr-label-reward">Weighted Reward: --</span>
+              </div>
+              <div class="rr-bar-track" style="height: 12px;">
+                <div id="rr-bar-risk-fill" class="rr-fill-risk" style="width: 33%"></div>
+                <div id="rr-bar-reward-fill" class="rr-fill-reward" style="width: 67%"></div>
+              </div>
+            </div>
+
+            <div class="scenario-metrics-grid" style="gap: 14px; margin-bottom: 20px;">
+              <div class="metric-tile" style="padding: 14px;">
+                <small>Position Size (Units)</small>
+                <strong id="out-position-size" style="font-size: 1.15rem;">--</strong>
+              </div>
+              <div class="metric-tile" style="padding: 14px;">
+                <small>Position Notional ($)</small>
+                <strong id="out-notional-val" style="font-size: 1.15rem;">--</strong>
+              </div>
+              <div class="metric-tile" style="padding: 14px;">
+                <small>Dollar Risk ($)</small>
+                <strong id="out-dollar-risk" class="text-danger" style="font-size: 1.15rem;">--</strong>
+              </div>
+              <div class="metric-tile" style="padding: 14px;">
+                <small>Weighted Net Profit ($)</small>
+                <strong id="out-net-reward" class="text-success" style="font-size: 1.15rem;">--</strong>
+              </div>
+              <div class="metric-tile" style="padding: 14px;">
+                <small>Expected Value (EV)</small>
+                <strong id="out-expected-value" style="font-size: 1.15rem;">--</strong>
+              </div>
+              <div class="metric-tile" style="padding: 14px;">
+                <small>Min Breakeven Win%</small>
+                <strong id="out-breakeven-wr" style="font-size: 1.15rem;">--</strong>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 18px;">
+              <label for="plan-thesis-notes">Trade Thesis &amp; Invalidation Notes</label>
+              <textarea id="plan-thesis-notes" class="plan-input" rows="3" placeholder="Document setup logic, confluences, catalyst, and invalidation rules..."></textarea>
+            </div>
+
+            <div class="plan-actions" style="gap: 14px;">
+              <button type="submit" id="btn-save-plan" class="btn-primary" style="padding: 11px;">💾 Stage Plan to Watchlist</button>
+              <button type="button" id="btn-push-journal" class="btn-accent" style="padding: 11px;">📒 Execute &amp; Log to Journal</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- SUB-PAGE 3: RISK GATEKEEPER & STAGED WATCHLIST -->
+      <div id="sub-gatekeeper" class="plan-subview hidden">
+        <div class="sub-grid-2col">
+          <div class="planning-card spacious-card">
+            <div class="card-header">
+              <div>
+                <h3>Risk Rule Gatekeeper</h3>
+                <p class="card-subtitle">Compliance audit against your predefined risk criteria</p>
+              </div>
+              <span id="gatekeeper-verdict-badge" class="verdict-badge verdict-pass">APPROVED</span>
+            </div>
+
+            <ul class="rule-audit-list" id="rule-audit-list"></ul>
+
+            <div class="checklist-box" style="padding: 16px; margin-top: 18px;">
+              <h4 style="margin-bottom: 12px; font-size: 0.92rem;">Pre-Trade Confluence Checklist</h4>
+              <label class="check-item" style="padding: 4px 0;">
+                <input type="checkbox" class="confluence-check" value="htf" checked />
+                <span>Aligned with Higher Timeframe (HTF) structure</span>
+              </label>
+              <label class="check-item" style="padding: 4px 0;">
+                <input type="checkbox" class="confluence-check" value="liquidity" checked />
+                <span>Stop Loss sits beyond structural liquidity sweep</span>
+              </label>
+              <label class="check-item" style="padding: 4px 0;">
+                <input type="checkbox" class="confluence-check" value="news" />
+                <span>No high-impact macro news within 30 minutes</span>
+              </label>
+              <label class="check-item" style="padding: 4px 0;">
+                <input type="checkbox" class="confluence-check" value="mental" checked />
+                <span>Calm execution state (Zero FOMO / Revenge)</span>
+              </label>
+              <div class="confluence-score-bar" style="margin-top: 14px; padding-top: 10px;">
+                <span>Readiness Score:</span>
+                <strong id="confluence-score-text" class="text-success">75% (A-Setup)</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="planning-card spacious-card">
+            <div class="card-header">
+              <div>
+                <h3>Staged Watchlist Plans (<span id="saved-plans-count">0</span>)</h3>
+                <p class="card-subtitle">Manage setups before sending to Journal</p>
+              </div>
+              <button type="button" id="btn-clear-plans" class="btn-link-danger">Clear All</button>
+            </div>
+            <div id="saved-plans-list" class="saved-plans-list" style="max-height: 480px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 2: DHAN-STYLE RISK, TRADING & INVESTMENT CALCULATORS
+         =================================================================== -->
+    <section id="calculators-workspace" class="workspace-section hidden">
+      <div class="planning-card" style="margin-bottom: 18px;">
+        <div class="calc-hub-header">
+          <div>
+            <h2 style="margin: 0; font-size: 1.25rem;">Market &amp; Trading Calculators</h2>
+            <p class="card-subtitle">Position sizing, derivatives, statutory charges, pivots, and returns</p>
+          </div>
+          <button type="button" id="calc-hub-back-btn" class="btn-secondary hidden" style="width: auto; padding: 6px 14px;">
+            ← Back to All Calculators
+          </button>
+        </div>
+
+        <div id="calc-search-controls" class="calc-filter-bar">
+          <input type="text" id="calc-search-input" class="plan-input" placeholder="🔍 Search calculators (e.g. Fibonacci, Brokerage, Margin, SIP)..." />
+          <div class="calc-category-chips" id="calc-category-chips">
+            <button type="button" class="calc-chip active" data-cat="all">All</button>
+            <button type="button" class="calc-chip" data-cat="trading">Trading &amp; Sizing</button>
+            <button type="button" class="calc-chip" data-cat="technical">Technicals &amp; Levels</button>
+            <button type="button" class="calc-chip" data-cat="derivatives">Options &amp; Charges</button>
+            <button type="button" class="calc-chip" data-cat="investing">Returns &amp; Wealth</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="calc-cards-grid" class="calc-cards-grid"></div>
+
+      <div id="calc-active-container" class="calc-active-container hidden">
+        <div class="planning-grid" style="grid-template-columns: 1.1fr 0.9fr;">
+          <div class="planning-card">
+            <div class="card-header">
+              <div>
+                <h3 id="active-calc-title">Calculator</h3>
+                <p id="active-calc-desc" class="card-subtitle">Adjust parameters below</p>
+              </div>
+              <span class="step-label" style="font-size: 0.72rem; color: var(--plan-muted); background: var(--plan-bg-elevated); padding: 3px 8px; border-radius: 4px;">INPUT PARAMETERS</span>
+            </div>
+            <form id="active-calc-form" class="plan-form"></form>
+          </div>
+
+          <div class="planning-card">
+            <div class="card-header">
+              <div>
+                <h3>Calculation Breakdown</h3>
+                <p class="card-subtitle">Real-time dynamic results</p>
+              </div>
+              <span class="step-label" style="font-size: 0.72rem; color: var(--plan-success); background: rgba(16, 185, 129, 0.1); padding: 3px 8px; border-radius: 4px;">LIVE RESULT</span>
+            </div>
+            <div id="active-calc-output"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 3: RISK RULES CONFIGURATION & DAILY LOSS TRACKER
+         =================================================================== -->
+    <section id="risk-rules-workspace" class="workspace-section hidden">
+      <div class="planning-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="planning-card">
+          <div class="card-header">
+            <div>
+              <h3>Global Risk Rules Configuration</h3>
+              <p class="card-subtitle">Used by the Planning Workspace Gatekeeper to approve or block trades</p>
+            </div>
+          </div>
+          <form id="risk-rules-form" class="plan-form">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="rule-account-balance">Base Account Equity ($)</label>
+                <input type="number" id="rule-account-balance" class="plan-input" value="10000" step="100" required />
+              </div>
+              <div class="form-group">
+                <label for="rule-max-risk-trade">Max Risk Per Trade (%)</label>
+                <input type="number" id="rule-max-risk-trade" class="plan-input" value="1.5" step="0.1" required />
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="rule-max-daily-dd">Max Daily Drawdown Limit (%)</label>
+                <input type="number" id="rule-max-daily-dd" class="plan-input" value="3.0" step="0.1" required />
+              </div>
+              <div class="form-group">
+                <label for="rule-min-rr">Minimum Reward:Risk Ratio (R)</label>
+                <input type="number" id="rule-min-rr" class="plan-input" value="1.5" step="0.1" required />
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="rule-daily-loss-used">Today's Realized Loss ($)</label>
+                <input type="number" id="rule-daily-loss-used" class="plan-input" value="0" step="10" />
+              </div>
+              <div class="form-group">
+                <label for="rule-max-open-trades">Max Concurrent Open Trades</label>
+                <input type="number" id="rule-max-open-trades" class="plan-input" value="3" step="1" />
+              </div>
+            </div>
+            <div class="plan-actions">
+              <button type="submit" class="btn-primary">💾 Save &amp; Enforce Risk Rules</button>
+              <button type="button" id="btn-reset-daily-loss" class="btn-secondary">🔄 Reset Today's Loss to $0</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="planning-card">
+          <div class="card-header">
+            <div>
+              <h3>Daily Drawdown &amp; Lockout Telemetry</h3>
+              <p class="card-subtitle">Real-time status of your daily risk budget</p>
+            </div>
+            <span id="daily-lockout-badge" class="verdict-badge verdict-pass">TRADING PERMITTED</span>
+          </div>
+          <div class="scenario-metrics-grid">
+            <div class="metric-tile">
+              <small>Daily Max Loss Cap</small>
+              <strong id="rule-out-daily-cap">$300.00</strong>
+            </div>
+            <div class="metric-tile">
+              <small>Realized Loss Today</small>
+              <strong id="rule-out-loss-today" class="text-danger">$0.00</strong>
+            </div>
+            <div class="metric-tile">
+              <small>Remaining Daily Buffer</small>
+              <strong id="rule-out-daily-buffer" class="text-success">$300.00</strong>
+            </div>
+          </div>
+          <div class="rr-visualizer" style="margin-top: 18px;">
+            <div class="rr-bar-labels">
+              <span>Daily Risk Budget Consumed</span>
+              <span id="rule-out-consumed-pct">0.0% Used</span>
+            </div>
+            <div class="rr-bar-track">
+              <div id="rule-bar-consumed" class="rr-fill-risk" style="width: 0%"></div>
+              <div id="rule-bar-remaining" class="rr-fill-reward" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         TAB 4: TRADE JOURNAL & PERFORMANCE ANALYTICS
+         =================================================================== -->
+    <!-- ===================================================================
+         TAB 4: TRADE JOURNAL & PERFORMANCE ANALYTICS
+         =================================================================== -->
+    <section id="journal-workspace" class="workspace-section hidden">
+      <div class="journal-kpi-grid">
+        <div class="planning-card kpi-card">
+          <small>Total Logged Trades</small>
+          <strong id="j-kpi-total">0</strong>
+        </div>
+        <div class="planning-card kpi-card">
+          <small>Win Rate (Closed)</small>
+          <strong id="j-kpi-winrate" class="text-success">0.0%</strong>
+        </div>
+        <div class="planning-card kpi-card">
+          <small>Realized Net PnL ($)</small>
+          <strong id="j-kpi-netpnl">$0.00</strong>
+        </div>
+        <div class="planning-card kpi-card">
+          <small>Open Risk Exposure</small>
+          <strong id="j-kpi-openrisk" class="text-warning">$0.00</strong>
+        </div>
+      </div>
+
+      <div class="planning-card" style="margin-top: 18px;">
+        <div class="card-header">
+          <div>
+            <h3>Execution &amp; Trade Journal</h3>
+            <p class="card-subtitle">Trades pushed from Planning Workspace appear here with live PnL tracking</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" id="btn-export-csv" class="btn-secondary" style="padding: 6px 14px;">
+              Export CSV
+            </button>
+            <button type="button" id="btn-clear-journal" class="btn-link-danger">
+              Clear all
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="journal-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Symbol</th>
+                <th>Dir</th>
+                <th>Entry</th>
+                <th>Stop Loss</th>
+                <th>Take Profit</th>
+                <th>Size</th>
+                <th>Risk ($)</th>
+                <th>Live / Final PnL</th>
+                <th>Status / Outcome</th>
+                <th>Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="journal-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    
+  </main>
+
+  <!-- APPLICATION SCRIPTS (EXACT ORDER OF DEPENDENCY) -->
+  <script src="js/storage.js"></script>
+  <script src="js/risk-rules.js"></script>
+  <script src="js/calculators.js"></script>
+  <script src="js/journal.js"></script>
+  <script src="js/planning.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
